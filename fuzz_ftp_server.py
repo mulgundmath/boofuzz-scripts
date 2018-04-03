@@ -5,10 +5,24 @@
 from boofuzz import *
 
 def main():
+    """
+    A simple FTP fuzzer using a process monitor (procmon).
+    It assumes that the procmon is already running. The script will connect to
+    the procmon and tell the procmon to start the target application
+    (see start_cmd).
+    """
+
     # 1. Create a session, which contains a target, which in turn contains a connection
+    target_ip = "192.168.0.14"
+    start_cmd = ['python', '/home/osboxes/ftp-master/ftp']
     session = Session(
         target = Target(
-            connection = SocketConnection("192.168.0.14", 8021, proto='tcp')))
+            connection = SocketConnection(target_ip, 8021, proto='tcp'),
+            procmon=pedrpc.Client(target_ip, 26002),
+            procmon_options={"start_commands": [start_cmd]}
+        ),
+        sleep_time=1
+    )
 
     # 2. Define FTP protocol messages
     # FTP user login message
